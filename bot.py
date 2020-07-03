@@ -2,6 +2,7 @@ import asyncio
 import discord
 import json
 import random
+import os
 
 client = discord.Client()
 
@@ -15,7 +16,7 @@ jsondata: dict = {}
 #########################################
 def JSONLoader() -> dict:
     try:
-        with open("config.json") as f:
+        with open(os.path.dirlist(os.path.abspath(__file__)) + "/config.json") as f:
             return json.load(f)
     except FileNotFoundError:
         print("Error, file 'config.json' doesn't exist")
