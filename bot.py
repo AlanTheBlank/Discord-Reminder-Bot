@@ -1,54 +1,40 @@
-import asyncio
 import discord
+from discord import File
+from os.path import dirname, abspath
+from os import listdir
+from random import choice
 import json
-import random
-import os
+import asyncio
 
 client = discord.Client()
 
-jsondata: dict = {}
-
-#########################################
-#   JSONLoader:                         #
-#       Loads the config.json file      #
-#   Returns:                            #
-#       The JSON data in a dict format  #
-#########################################
 def JSONLoader() -> dict:
-    try:
-        with open(os.path.dirlist(os.path.abspath(__file__)) + "/config.json") as f:
-            return json.load(f)
-    except FileNotFoundError:
-        print("Error, file 'config.json' doesn't exist")
-    except:
-        print("Unknown error in JSONLoader")
+    with open(dirname(abspath(__file__)) + "/config.json") as Json:
+        json_data: dict = json.load(Json)
+        return json_data
 
-#############################################
-#   sendReminder:                           #
-#       Sends our target user a reminder    #
-#   Returns:                                #
-#       Nothing                             #
-#############################################
 async def sendReminder() -> None:
-    global jsondata
-    msgs: list = [
-        "this",
-        "is",
-        "filler",
-        "text"
-    ]
-    # These two if statements aren't really important after the first run of our bot, opens DM channel with our users
     if(not client.get_user(jsondata["user"]).dm_channel):
         await client.get_user(jsondata["user"]).create_dm()
-    if(not client.get_user(jsondata["debug_user"]).dm_channel):
-        await client.get_user(jsondata["debug_user"]).create_dm()
-    # Try/except incase our target user decides to block the bot
-    try:
-        channel: discord.DMChannel = client.get_user(jsondata["user"]).dm_channel
-        await channel.send(content=random.choice(msgs))
-    except:
-        channel: discord.DMChannel = client.get_user(jsondata["debug_user"]).dm_channel
-        await channel.send(content="an error occured sending the message to " + str(client.get_user(jsondata["user"])))
+    channel: discord.DMChannel = client.get_user(jsondata["user"]).dm_channel
+
+    content: str = dirname(abspath(__file__)) + "/content/" + choice(listdir(dirname(abspath(__file__)) + "/content"))
+    image_filetype: list = [
+        "png",
+        "bmp",
+        "gif",
+        "jpg",
+        "jpeg",
+        "webm",
+        "mp4",
+        "mp3"
+    ]
+    filetype = content.rsplit(".", 1)[1]
+    if(content.rsplit(".", 1)[1] in image_filetype):
+        await channel.send(file=File(content))
+    else:
+        with open(content) as f:
+            await channel.send(content=f.read())
 
 
 @client.event
@@ -56,5 +42,6 @@ async def on_ready():
     await sendReminder()
     await client.close()
 
-jsondata = JSONLoader()
-client.run(jsondata["token"])
+if __name__ == "__main__":
+    jsondata: dict = JSONLoader()
+    client.run(jsondata["token"])
