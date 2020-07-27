@@ -8,8 +8,10 @@ import asyncio
 
 client = discord.Client()
 
+path = dirname(abspath(__file__))
+
 def JSONLoader() -> dict:
-    with open(dirname(abspath(__file__)) + "/config.json") as Json:
+    with open(path + "/config.json") as Json:
         json_data: dict = json.load(Json)
         return json_data
 
@@ -18,7 +20,7 @@ async def sendReminder() -> None:
         await client.get_user(jsondata["user"]).create_dm()
     channel: discord.DMChannel = client.get_user(jsondata["user"]).dm_channel
 
-    content: str = dirname(abspath(__file__)) + "/content/" + choice(listdir(dirname(abspath(__file__)) + "/content"))
+    content: str = path + "/content/" + choice(listdir(path) + "/content"))
     image_filetype: list = [
         "png",
         "bmp",
